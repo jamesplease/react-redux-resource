@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getStatus } from 'redux-resource';
+import { getStatus, getResources, getList } from 'redux-resource';
 
 class connectedResource extends Component {
   render() {
-    const { data, children, request } = this.props;
+    const { children, request, resources, hydratedLists } = this.props;
 
     const status = getStatus(request);
 
     return children({
       status,
       request,
-      resources: data
+      resources,
+      lists: hydratedLists
     });
   }
 }
@@ -21,10 +22,24 @@ class connectedResource extends Component {
 // component makes a new HTTP call with this same request key,
 // then this component will be updated as well.
 function mapStateToProps(state, props) {
-  const request = state[props.resourceRequestSlice].resources[props.requestId];
+  const request =
+    state[props.resourceRequestSlice].resources[props.requestId] || {};
+  const resourcesIds = request.resources || {};
+
+  let resources = {};
+  for (var key in resourcesIds) {
+    resources[key] = getResources(state[key], resourcesIds[key]);
+  }
+
+  let hydratedLists = {};
+  for (var key in props.lists) {
+    hydratedLists[key] = getList(state[key], props.lists[key]);
+  }
 
   return {
-    request: state[props.resourceRequestSlice].resources[props.requestId]
+    request: state[props.resourceRequestSlice].resources[props.requestId],
+    resources,
+    hydratedLists
   };
 }
 

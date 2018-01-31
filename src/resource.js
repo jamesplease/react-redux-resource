@@ -13,7 +13,8 @@ export class Resource extends Component {
       resourceRequestSlice,
       transformData,
       crudAction,
-      dispatch
+      dispatch,
+      lists
     } = this.props;
 
     const capitalizedCrudAction = crudAction.toUpperCase();
@@ -63,6 +64,7 @@ export class Resource extends Component {
             {...renderProps}
             children={children}
             resourceRequestSlice={resourceRequestSlice}
+            lists={lists}
           />
         );
         return;
