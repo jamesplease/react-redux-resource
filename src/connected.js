@@ -4,13 +4,22 @@ import { getStatus, getResources, getList } from 'redux-resource';
 
 class connectedResource extends Component {
   render() {
-    const { children, request, resources, hydratedLists } = this.props;
+    const {
+      children,
+      request,
+      resources,
+      hydratedLists,
+      doFetch,
+      url
+    } = this.props;
 
     const status = getStatus(request);
 
     return children({
       status,
       request,
+      doFetch,
+      url,
       resources,
       lists: hydratedLists
     });
