@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getStatus, getResources, getList } from 'redux-resource';
+import { getStatus, getResources } from 'redux-resource';
 
-class connectedResource extends Component {
+class ConnectedResource extends Component {
   render() {
     const {
       children,
@@ -40,6 +40,10 @@ function mapStateToProps(state, props) {
     resources[key] = getResources(state[key], resourcesIds[key]);
   }
 
+  function getList() {
+
+  }
+
   let hydratedLists = {};
   for (var key in props.lists) {
     hydratedLists[key] = getList(state[key], props.lists[key]);
@@ -52,4 +56,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps)(Resource);
+export default connect(mapStateToProps)(ConnectedResource);
