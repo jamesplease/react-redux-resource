@@ -2,20 +2,28 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { actionTypes } from 'redux-resource';
-import { Fetch } from 'react-request';
+import { Fetch, getRequestKey } from 'react-request';
 import Connected from './connected';
 
-export class Resource extends Component {
+export class ResourceRequest extends Component {
   render() {
     const {
       request,
       children,
-      resourceRequestSlice,
+      resourceName,
       transformData,
       crudAction,
       dispatch,
-      lists
+      lists,
+      treatNullAsPending
     } = this.props;
+
+    const requestKey = getRequestKey({
+      url: request.props.url,
+      body: request.props.body,
+      responseType: request.props.responseType,
+      method: request.props.method.toUpperCase()
+    });
 
     const capitalizedCrudAction = crudAction.toUpperCase();
 
@@ -23,9 +31,9 @@ export class Resource extends Component {
       beforeFetch(info) {
         const { requestKey } = info;
         dispatch({
+          resourceName,
           type: actionTypes[`${capitalizedCrudAction}_RESOURCES_PENDING`],
-          requestKey: requestKey,
-          requestName: request.props.requestName
+          request: requestKey
         });
 
         request.props.beforeFetch(info);
@@ -35,24 +43,25 @@ export class Resource extends Component {
         if (error) {
           if (error.isAborted) {
             dispatch({
+              resourceName,
               type: actionTypes[`${capitalizedCrudAction}_RESOURCES_IDLE`],
-              requestKey: requestKey,
-              requestName: request.props.requestName
+              request: requestKey
             });
           } else {
             dispatch({
+              resourceName,
               type: actionTypes[`${capitalizedCrudAction}_RESOURCES_FAIED`],
-              requestKey: requestKey,
-              requestName: request.props.requestName,
+              request: requestKey,
               error
             });
           }
         } else {
+          const resources = data && transformData ? transformData(data) : data;
           dispatch({
+            resourceName,
             type: actionTypes[`${capitalizedCrudAction}_RESOURCES_SUCCEEDED`],
-            requestKey: requestKey,
-            requestName: request.props.requestName,
-            resources: data
+            request: requestKey,
+            resources
           });
         }
 
@@ -62,8 +71,10 @@ export class Resource extends Component {
         return (
           <Connected
             {...renderProps}
+            treatNullAsPending={treatNullAsPending}
+            requestKey={requestKey}
+            resourceName={resourceName}
             children={children}
-            resourceRequestSlice={resourceRequestSlice}
             lists={lists}
           />
         );
@@ -73,13 +84,12 @@ export class Resource extends Component {
   }
 }
 
-Resource.propTypes = {
-  resourceRequestSlice: PropTypes.string.isRequired,
+ResourceRequest.propTypes = {
+  resourceName: PropTypes.string.isRequired,
   crudAction: PropTypes.string.isRequired
 };
 
-Resource.defaultProps = {
-  resourceRequestSlice: 'resourceRequests',
+ResourceRequest.defaultProps = {
   crudAction: 'read'
 };
 
@@ -87,4 +97,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(null, mapDispatchToProps)(Resource);
+export default connect(null, mapDispatchToProps)(ResourceRequest);

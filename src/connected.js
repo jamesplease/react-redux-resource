@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getStatus, getResources } from 'redux-resource';
+import { getStatus, getResources, resourceReducer } from 'redux-resource';
 
 class ConnectedResource extends Component {
   render() {
@@ -8,20 +8,21 @@ class ConnectedResource extends Component {
       children,
       request,
       resources,
-      hydratedLists,
       doFetch,
-      url
+      url,
+      resourceName,
+      treatNullAsPending
     } = this.props;
 
-    const status = getStatus(request, '');
+    const status = getStatus(request, 'status', treatNullAsPending);
 
     return children({
       status,
       request,
       doFetch,
+      resourceName,
       url,
-      resources,
-      lists: hydratedLists
+      resources
     });
   }
 }
@@ -31,26 +32,14 @@ class ConnectedResource extends Component {
 // component makes a new HTTP call with this same request key,
 // then this component will be updated as well.
 function mapStateToProps(state, props) {
-  // const request =
-  //   state[props.resourceRequestSlice].resources[props.requestId] || {};
-  // const resourcesIds = request.resources || {};
-
-  // let resources = {};
-  // for (var key in resourcesIds) {
-  //   resources[key] = getResources(state[key], resourcesIds[key]);
-  // }
-
-  function getList() {}
-
-  let hydratedLists = {};
-  for (var key in props.lists) {
-    hydratedLists[key] = getList(state[key], props.lists[key]);
-  }
+  const resourceSlice = state[props.resourceName] || {};
+  const resourceRequests = resourceSlice.requests || {};
+  const request = resourceRequests[props.requestKey] || {};
+  const resources = getResources(resourceSlice, request.ids);
 
   return {
-    // request,
-    // resources,
-    hydratedLists
+    request,
+    resources
   };
 }
 
