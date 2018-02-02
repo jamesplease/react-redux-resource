@@ -13,7 +13,7 @@ class ConnectedResource extends Component {
       url
     } = this.props;
 
-    const status = getStatus(request);
+    const status = getStatus(request, '');
 
     return children({
       status,
@@ -31,18 +31,16 @@ class ConnectedResource extends Component {
 // component makes a new HTTP call with this same request key,
 // then this component will be updated as well.
 function mapStateToProps(state, props) {
-  const request =
-    state[props.resourceRequestSlice].resources[props.requestId] || {};
-  const resourcesIds = request.resources || {};
+  // const request =
+  //   state[props.resourceRequestSlice].resources[props.requestId] || {};
+  // const resourcesIds = request.resources || {};
 
-  let resources = {};
-  for (var key in resourcesIds) {
-    resources[key] = getResources(state[key], resourcesIds[key]);
-  }
+  // let resources = {};
+  // for (var key in resourcesIds) {
+  //   resources[key] = getResources(state[key], resourcesIds[key]);
+  // }
 
-  function getList() {
-
-  }
+  function getList() {}
 
   let hydratedLists = {};
   for (var key in props.lists) {
@@ -50,8 +48,8 @@ function mapStateToProps(state, props) {
   }
 
   return {
-    request: state[props.resourceRequestSlice].resources[props.requestId],
-    resources,
+    // request,
+    // resources,
     hydratedLists
   };
 }

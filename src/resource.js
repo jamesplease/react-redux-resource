@@ -21,36 +21,36 @@ export class Resource extends Component {
 
     return React.cloneElement(request, {
       beforeFetch(info) {
-        const { fetchDedupeOptions } = info;
+        const { requestKey } = info;
         dispatch({
           type: actionTypes[`${capitalizedCrudAction}_RESOURCES_PENDING`],
-          requestKey: fetchDedupeOptions.requestKey,
+          requestKey: requestKey,
           requestName: request.props.requestName
         });
 
         request.props.beforeFetch(info);
       },
       afterFetch(info) {
-        const { fetchDedupeOptions, data } = info;
-        if (err) {
-          if (err.isAborted) {
+        const { requestKey, data, error } = info;
+        if (error) {
+          if (error.isAborted) {
             dispatch({
               type: actionTypes[`${capitalizedCrudAction}_RESOURCES_IDLE`],
-              requestKey: fetchDedupeOptions.requestKey,
+              requestKey: requestKey,
               requestName: request.props.requestName
             });
           } else {
             dispatch({
               type: actionTypes[`${capitalizedCrudAction}_RESOURCES_FAIED`],
-              requestKey: fetchDedupeOptions.requestKey,
+              requestKey: requestKey,
               requestName: request.props.requestName,
-              err
+              error
             });
           }
         } else {
           dispatch({
             type: actionTypes[`${capitalizedCrudAction}_RESOURCES_SUCCEEDED`],
-            requestKey: fetchDedupeOptions.requestKey,
+            requestKey: requestKey,
             requestName: request.props.requestName,
             resources: data
           });
