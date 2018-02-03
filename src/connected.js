@@ -37,7 +37,12 @@ function mapStateToProps(state, props) {
   const resourceSlice = state[props.resourceName] || {};
   const resourceRequests = resourceSlice.requests || {};
   const request = resourceRequests[props.requestKey] || {};
-  const resources = getResources(resourceSlice, request.ids);
+  const resourcesArray = getResources(resourceSlice, request.ids);
+
+  const resources = {};
+  resourcesArray.map(resource => {
+    resources[resource.id] = resource;
+  });
 
   const lists = {
     [props.list]: getResources(resourceSlice, resourceSlice.lists[props.list])

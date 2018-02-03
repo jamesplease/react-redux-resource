@@ -13,6 +13,7 @@ export class ResourceRequest extends Component {
       resourceName,
       transformData,
       crudAction,
+      resources,
       dispatch,
       list,
       mergeListIds,
@@ -26,6 +27,7 @@ export class ResourceRequest extends Component {
         const { requestKey } = info;
         dispatch({
           resourceName,
+          resources,
           type: actionTypes[`${capitalizedCrudAction}_RESOURCES_PENDING`],
           request: requestKey
         });
@@ -33,31 +35,44 @@ export class ResourceRequest extends Component {
         request.props.beforeFetch(info);
       },
       afterFetch(info) {
-        const { requestKey, data, error } = info;
-        if (error) {
-          if (error.isAborted) {
+        const { requestKey, data, response, error } = info;
+        if (error || response.status >= 400) {
+          // This needs to be a more accurate check :)
+          if (error && error.isAborted) {
             dispatch({
               resourceName,
-              type: actionTypes[`${capitalizedCrudAction}_RESOURCES_IDLE`],
+              resources,
+              type: actionTypes[`${capitalizedCrudAction}_RESOURCES_NULL`],
               request: requestKey
             });
           } else {
             dispatch({
               resourceName,
-              type: actionTypes[`${capitalizedCrudAction}_RESOURCES_FAIED`],
+              resources,
+              statusCode: response.status,
+              type: actionTypes[`${capitalizedCrudAction}_RESOURCES_FAILED`],
               request: requestKey,
               error
             });
           }
         } else {
-          const resources = data && transformData ? transformData(data) : data;
+          console.log('the data is', data);
+          let dispatchResources;
+          if (data && transformData) {
+            dispatchResources = transformData(data);
+          } else if (data) {
+            dispatchResources = data;
+          } else {
+            dispatchResources = resources;
+          }
           dispatch({
             resourceName,
             list,
             mergeListIds,
+            statusCode: response.status,
             type: actionTypes[`${capitalizedCrudAction}_RESOURCES_SUCCEEDED`],
             request: requestKey,
-            resources
+            resources: dispatchResources
           });
         }
 
