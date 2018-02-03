@@ -113,7 +113,6 @@ ResourceRequest.propTypes = {
 };
 
 ResourceRequest.defaultProps = {
-  crudAction: 'read',
   lists: []
 };
 
