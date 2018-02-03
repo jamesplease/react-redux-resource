@@ -12,6 +12,7 @@ class ConnectedResource extends Component {
       url,
       resourceName,
       treatNullAsPending,
+      setFetchToIdle,
       lists
     } = this.props;
 
@@ -21,6 +22,7 @@ class ConnectedResource extends Component {
       status,
       request,
       doFetch,
+      setFetchToIdle,
       resourceName,
       url,
       lists,

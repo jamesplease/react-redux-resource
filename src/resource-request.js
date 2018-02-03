@@ -36,7 +36,8 @@ export class ResourceRequest extends Component {
       },
       afterFetch(info) {
         const { requestKey, data, response, error } = info;
-        if (error || response.status >= 400) {
+        const status = (response && response.status) || 0;
+        if (error || status >= 400) {
           // This needs to be a more accurate check :)
           if (error && error.isAborted) {
             dispatch({
@@ -49,14 +50,13 @@ export class ResourceRequest extends Component {
             dispatch({
               resourceName,
               resources,
-              statusCode: response.status,
+              statusCode: status,
               type: actionTypes[`${capitalizedCrudAction}_RESOURCES_FAILED`],
               request: requestKey,
               error
             });
           }
         } else {
-          console.log('the data is', data);
           let dispatchResources;
           if (data && transformData) {
             dispatchResources = transformData(data);
@@ -69,7 +69,7 @@ export class ResourceRequest extends Component {
             resourceName,
             list,
             mergeListIds,
-            statusCode: response.status,
+            statusCode: status,
             type: actionTypes[`${capitalizedCrudAction}_RESOURCES_SUCCEEDED`],
             request: requestKey,
             resources: dispatchResources
@@ -79,11 +79,23 @@ export class ResourceRequest extends Component {
         request.props.afterFetch(info);
       },
       children(renderProps) {
+        function setFetchToIdle(actionAttributes) {
+          return dispatch({
+            type: actionTypes[`${capitalizedCrudAction}_RESOURCES_NULL`],
+            request: renderProps.requestKey,
+            resourceName,
+            // Should `resources` be in here by default? I need to think more about
+            // that.
+            resources,
+            ...actionAttributes
+          });
+        }
         return (
           <Connected
             {...renderProps}
             treatNullAsPending={treatNullAsPending}
             resourceName={resourceName}
+            setFetchToIdle={setFetchToIdle}
             children={children}
             list={list}
           />
