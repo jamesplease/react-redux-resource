@@ -67,7 +67,7 @@ export class ResourceRequest extends Component {
 
         request.props.afterFetch(info);
       },
-      render(renderProps) {
+      children(renderProps) {
         return (
           <Connected
             {...renderProps}
