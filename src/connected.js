@@ -11,7 +11,8 @@ class ConnectedResource extends Component {
       doFetch,
       url,
       resourceName,
-      treatNullAsPending
+      treatNullAsPending,
+      lists
     } = this.props;
 
     const status = getStatus(request, 'status', treatNullAsPending);
@@ -22,6 +23,7 @@ class ConnectedResource extends Component {
       doFetch,
       resourceName,
       url,
+      lists,
       resources
     });
   }
@@ -37,9 +39,14 @@ function mapStateToProps(state, props) {
   const request = resourceRequests[props.requestKey] || {};
   const resources = getResources(resourceSlice, request.ids);
 
+  const lists = {
+    [props.list]: getResources(resourceSlice, resourceSlice.lists[props.list])
+  };
+
   return {
     request,
-    resources
+    resources,
+    lists
   };
 }
 

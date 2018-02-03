@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { actionTypes } from 'redux-resource';
-import { Fetch, getRequestKey } from 'react-request';
+import { Fetch } from 'react-request';
 import Connected from './connected';
 
 export class ResourceRequest extends Component {
@@ -14,16 +14,10 @@ export class ResourceRequest extends Component {
       transformData,
       crudAction,
       dispatch,
-      lists,
+      list,
+      mergeListIds,
       treatNullAsPending
     } = this.props;
-
-    const requestKey = getRequestKey({
-      url: request.props.url,
-      body: request.props.body,
-      responseType: request.props.responseType,
-      method: request.props.method.toUpperCase()
-    });
 
     const capitalizedCrudAction = crudAction.toUpperCase();
 
@@ -59,6 +53,8 @@ export class ResourceRequest extends Component {
           const resources = data && transformData ? transformData(data) : data;
           dispatch({
             resourceName,
+            list,
+            mergeListIds,
             type: actionTypes[`${capitalizedCrudAction}_RESOURCES_SUCCEEDED`],
             request: requestKey,
             resources
@@ -72,10 +68,9 @@ export class ResourceRequest extends Component {
           <Connected
             {...renderProps}
             treatNullAsPending={treatNullAsPending}
-            requestKey={requestKey}
             resourceName={resourceName}
             children={children}
-            lists={lists}
+            list={list}
           />
         );
         return;
@@ -86,11 +81,13 @@ export class ResourceRequest extends Component {
 
 ResourceRequest.propTypes = {
   resourceName: PropTypes.string.isRequired,
-  crudAction: PropTypes.string.isRequired
+  crudAction: PropTypes.string.isRequired,
+  lists: PropTypes.arrayOf(PropTypes.string).isRequired
 };
 
 ResourceRequest.defaultProps = {
-  crudAction: 'read'
+  crudAction: 'read',
+  lists: []
 };
 
 function mapDispatchToProps(dispatch) {
