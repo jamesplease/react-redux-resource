@@ -1,6 +1,6 @@
 {
   "name": "react-redux-resource",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "React bindings for Redux Resource",
   "main": "lib/index.js",
   "module": "es/index.js",
