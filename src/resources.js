@@ -1,32 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getStatus, getResources, resourceReducer } from 'redux-resource';
+import { getStatus, getResources } from 'redux-resource';
 
-class ConnectedResource extends Component {
+class Resources extends Component {
   render() {
     const {
       children,
-      request,
-      resources,
-      doFetch,
-      url,
-      resourceName,
-      treatNullAsPending,
-      setFetchToIdle,
-      lists
+      ...otherProps
     } = this.props;
 
-    const status = getStatus(request, 'status', treatNullAsPending);
-
     return children({
-      status,
-      request,
-      doFetch,
-      setFetchToIdle,
-      resourceName,
-      url,
-      lists,
-      resources
+      ...otherProps
     });
   }
 }
@@ -38,23 +22,31 @@ class ConnectedResource extends Component {
 function mapStateToProps(state, props) {
   const resourceSlice = state[props.resourceName] || {};
   const resourceRequests = resourceSlice.requests || {};
+  const resourceMeta = resourceSlice.meta || {};
   const request = resourceRequests[props.requestKey] || {};
   const resourcesArray = getResources(resourceSlice, request.ids);
 
+  const status = getStatus(request, 'status', props.treatNullAsPending);
+
   const resources = {};
+  const meta = {};
   resourcesArray.map(resource => {
+    meta[resource.id] = resourceMeta[resource.id];
     resources[resource.id] = resource;
   });
 
+  // This prepares us for a future `lists` API.
   const lists = {
     [props.list]: getResources(resourceSlice, resourceSlice.lists[props.list])
   };
 
   return {
     request,
+    status,
     resources,
+    meta,
     lists
   };
 }
 
-export default connect(mapStateToProps)(ConnectedResource);
+export default connect(mapStateToProps)(Resources);

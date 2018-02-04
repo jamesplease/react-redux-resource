@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { actionTypes } from 'redux-resource';
 import { Fetch } from 'react-request';
-import Connected from './connected';
+import Resources from './resources';
 
 export class ResourceRequest extends Component {
   render() {
@@ -91,7 +91,7 @@ export class ResourceRequest extends Component {
           });
         }
         return (
-          <Connected
+          <Resources
             {...renderProps}
             treatNullAsPending={treatNullAsPending}
             resourceName={resourceName}
